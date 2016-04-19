@@ -5,12 +5,12 @@
 	<script type="text/javascript" src="__JS__/admin.js"></script>
 	<script>
 		function change_verify(selecter) {
-			$("#" + selecter).attr("src", "{:U('Api/verify')}#" + Math.random());
+			$("#" + selecter).attr("src", "{:U('Api/verify')}");
 			return false;
 		};
 		function login(){
 			$.ajax({
-				url: '{:U('Admin/login')}',
+				url: '{:U('login')}',
 				type: 'POST',
 				dataType: 'json',
 				data: $('#loginform').serialize(),
@@ -44,16 +44,16 @@
 	</script>
 </head>
 <body>
-	<form>
-		<p><input type="text" name="username" /></p>
-		<p><input type="password" name="password" /></p>
+	<form id="loginform">
+		<p><input type="text" name="email" placeholder="" /></p>
+		<p><input type="password" name="password" placeholder="" /></p>
 		
 		<p>验 证 码:</p>
-		<input type="text" name="verify" placeholder="">
-			<img id="verifyimage" onclick="change_verify('verifyimage');" src="{:U('Api/verify')}" alt="验证码" style="width:100px;height:44px;">
-		
+		<input type="text" name="verify" id="verify" placeholder="" />
+			<img id="verifyimage" onclick="change_verify('verifyimage');" src="{:U('Api/verify')}" alt="验证码" style="width:400px;height:200px;">
+			
 		<p><button type="submit" onclick="return login();">登陆</button></p>
 	</form>
-	<p><button onclick="change_verify('verifyimage');">换一张</button></p>
+
 </body>
 </html>
