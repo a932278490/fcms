@@ -1,0 +1,111 @@
+<script>
+	$(function(){
+		Namespace.register("EBCMS.[namespace]");
+		EBCMS.[namespace].refresh = function refresh(){
+			EBCMS.CORE.api({
+				queryParams:{
+					sort:'sort',
+					order:'desc',
+					__api:'databackups',
+				},
+				tpl:'[namespace]-table',
+				target:'#[namespace]_table',
+			});
+		};
+		/*预览*/
+		EBCMS.[namespace].showsql = function showsql(filename){
+			EBCMS.CORE.get({
+				url:'{:U('showsql')}',
+				queryParams:{
+					filename:filename,
+				},
+				target:'#lgModal .modal-content',
+			});
+		};
+		/*删除*/
+		EBCMS.[namespace].startDelete = function startDelete(time,ext,parts){
+			EBCMS.MSG.confirm('确定删除备份数据？<br/>删除后不可恢复！',function(){
+				EBCMS.CORE.submit({
+					url:'{:U('delete')}',
+					queryParams:{
+						time:time,
+						ext:ext,
+						parts:parts,
+					},
+					success:function(data){
+						EBCMS.MSG.tips('删除成功！');
+						EBCMS.[namespace].refresh();
+					}
+				});
+			});
+		};
+		/*还原*/
+		EBCMS.[namespace].importsform = function importsform(filetime){
+			EBCMS.CORE.get({
+				url:'{:U('imports')}',
+				queryParams:{
+					filetime:filetime,
+				},
+				target:'#lgModal .modal-content',
+			});
+		};
+		EBCMS.CORE.compile({
+			tpl:'[namespace]-box',
+			target:'#[namespace]_box',
+			compileAfter:function(){
+				EBCMS.[namespace].refresh();
+			}
+		});
+	});
+</script>
+
+<script id="[namespace]-box" type="text/html">
+	<div class="header">
+		<div class="header-title" onclick="EBCMS.[namespace].refresh();">备份管理</div>
+	</div>
+	<div class="body" style="bottom:0px;">
+		<div class="box" id="[namespace]_table"></div>
+	</div>
+</script>
+
+<script id="[namespace]-table" type="text/html">
+	<table class="table table-bordered">
+		<tbody>
+			<tr>
+				<th>id</th>
+				<th>名称</th>
+				<th style="width:210px;">操作</th>
+			</tr>
+			{{each rows as file index}}
+				<tr>
+					<th colspan="2">备份时间：{{file.time}}</th>
+					<td>
+						<div class="btn-group btn-group-xs" role="group" aria-label="...">
+						{{if access(0,'[namespace]','imports')}}
+						<a class="btn btn-primary" href="javascript:EBCMS.[namespace].importsform('{{file.time}}');">还原</a>
+						{{/if}}
+						{{if access(0,'[namespace]','delete')}}
+						<a class="btn btn-primary" href="javascript:EBCMS.[namespace].startDelete('{{file.time}}','{{file.ext}}','{{file.parts}}');">删除</a>
+						{{/if}}
+						</div>
+					</td>
+				</tr>
+				{{if file.files}}
+					{{each file.files as v n}}
+						<tr>
+							<td>{{n}}</td>
+							<td>{{v.file}}</td>
+							<td>
+								<div class="btn-group btn-group-xs" role="group" aria-label="...">
+								{{if access(0,'[namespace]','showsql')}}
+								<a class="btn btn-primary" href="javascript:EBCMS.[namespace].showsql('{{v.file}}');">预览</a>
+								{{/if}}
+								</div>
+							</td>
+						</tr>
+					{{/each}}
+				{{/if}}
+			{{/each}}
+		</tbody>
+	</table>
+</script>

@@ -1,0 +1,137 @@
+<script>
+	Namespace.register("EBCMS.[namespace]field");
+	$(function(){
+		EBCMS.[namespace]field.queryParams = {
+			sort:'sort',
+			order:'desc',
+			__model:'modelfield',
+		};
+		EBCMS.[namespace]field.refresh = function refresh(p){
+			if (p) {
+				$.each(p, function(index, val) {
+					if (typeof val == 'object') {
+						EBCMS.[namespace]field.queryParams[index] = $.extend(EBCMS.[namespace]field.queryParams[index], p[index]);
+						delete p[index];
+					};
+				});
+				$.extend(EBCMS.[namespace]field.queryParams, p);
+			};
+			EBCMS.CORE.api({
+				queryParams:EBCMS.[namespace]field.queryParams,
+				group:'group',
+				tpl:'[namespace]field-table',
+				target:'#[namespace]field_table',
+				compileAfter:function(data){
+					$('#[namespace]field_table').find('.input_sort').focus(function(){
+						EBCMS.[namespace]field.sortvalue = $(this).val();
+					}).blur(function(){
+						var $this = $(this);
+						if ($this.val() != EBCMS.[namespace]field.sortvalue) {
+							EBCMS.ACT.togglefield('{:U('Modelfield/resort')}',$this.data('id'),$this.val(),'[namespace]field','resort');
+						};
+					});
+				},
+			});
+		};
+		EBCMS.[namespace]field.add = function add(){
+			if (EBCMS.[namespace]field.queryParams['__where'] && EBCMS.[namespace]field.queryParams['__where']['category_id']) {
+				EBCMS.CORE.get({
+					url:'{:U('Modelfield/add')}',
+					queryParams:{
+						category_id:EBCMS.[namespace]field.queryParams['__where']['category_id'][1],
+					},
+					target:'#lgModal .modal-content',
+				});
+			}else{
+				EBCMS.MSG.tips('请先选择左侧模型！');
+			};
+		};
+		EBCMS.[namespace]field.save = function save(id){
+			EBCMS.CORE.get({
+				url:'{:U('Modelfield/save')}',
+				queryParams:{
+					id:id,
+				},
+				target:'#lgModal .modal-content',
+			});
+		};
+		EBCMS.[namespace]field.config = function config(id){
+			EBCMS.CORE.get({
+				url:'{:U('Modelfield/save')}',
+				queryParams:{
+					__type:'config',
+					id:id,
+				},
+				target:'#lgModal .modal-content',
+			});
+		};
+	});
+</script>
+	
+<script id="[namespace]field-box" type="text/html">
+	<div class="header">
+		<div class="header-title" onclick="EBCMS.[namespace]field.refresh();">字段管理</div>
+		<div class="btn-group pull-right" role="group" aria-label="...">
+			<a class="btn btn-success" href="javascript:EBCMS.[namespace]field.add()">添加</a>
+		</div>
+	</div>
+	<div class="body" style="bottom:0px;">
+		<div class="box" id="[namespace]field_table"></div>
+	</div>
+</script>
+	
+<script id="[namespace]field-table" type="text/html">
+	<div class="table-responsive">
+		<table class="table table-bordered">
+			<tbody>
+				<tr>
+					<th>id</th>
+					<th>名称</th>
+					<th>排序</th>
+					<th style="width:200px;">操作</th>
+				</tr>
+				{{each groups as data group}}
+					<tr>
+						<th colspan="4">{{group}}</th>
+					</tr>
+					{{include '[namespace]field-table-item' data}}
+				{{/each}}
+			</tbody>
+		</table>
+	</div>
+</script>
+
+<script id="[namespace]field-table-item" type="text/html">
+	{{each rows as v n}}
+		<tr>
+			<td>{{v.id}}</td>
+			<td>{{v.title}}</td>
+			<td><input value="{{v.sort}}" class="input_sort" data-id="{{v.id}}"></td>
+			<td>
+			<div class="btn-group btn-group-xs" role="group" aria-label="...">
+				{{if access(0,'[namespace]field','lock')}}
+					{{if v.locked==1}}
+					<a class="btn btn-primary" href="javascript:EBCMS.ACT.lock('{:U('Modelfield/lock')}','{{v.id}}','0','[namespace]field');">已锁</a>
+					{{else}}
+					<a class="btn btn-primary" href="javascript:EBCMS.ACT.lock('{:U('Modelfield/lock')}','{{v.id}}','1','[namespace]field');">未锁</a>
+					{{/if}}
+				{{/if}}
+				{{if access(v.locked,'[namespace]field','status')}}
+					{{if v.status==1}}
+					<a class="btn btn-primary" href="javascript:EBCMS.ACT.status('{:U('Modelfield/status')}','{{v.id}}','0','[namespace]field');">已审</a>
+					{{else}}
+					<a class="btn btn-primary" href="javascript:EBCMS.ACT.status('{:U('Modelfield/status')}','{{v.id}}','1','[namespace]field');">未审</a>
+					{{/if}}
+				{{/if}}
+				{{if access(v.locked,'[namespace]field','save')}}
+				<a class="btn btn-primary" href="javascript:EBCMS.[namespace]field.save('{{v.id}}');">编辑</a>
+				<a class="btn btn-primary" href="javascript:EBCMS.[namespace]field.config('{{v.id}}')">设置</a>
+				{{/if}}
+				{{if access(v.locked,'[namespace]field','delete')}}
+				<a class="btn btn-primary" href="javascript:EBCMS.ACT.del('{:U('Modelfield/delete')}','{{v.id}}','[namespace]field');">删除</a>
+				{{/if}}
+				</div>
+			</td>
+		</tr>
+	{{/each}}
+</script>

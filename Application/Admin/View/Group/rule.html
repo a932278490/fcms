@@ -1,0 +1,63 @@
+<script>
+	$(function(){
+		Namespace.register("EBCMS.Forms");
+		EBCMS.Forms.FormSubmit = function FormSubmit(){
+			EBCMS.CORE.submit({
+				url:'{:U('rule')}',
+				form:'{$namespace}Form',
+				success:function(data){
+					EBCMS.MSG.tips('提交成功！');
+					$('#lgModal').modal('toggle');
+					EBCMS.{$namespace}.refresh();
+				}
+			});
+		};
+		EBCMS.CORE.load({
+			url: '{:U('rule')}',
+			queryParams:{
+				group_id:'{:I('id')}',
+				__type:'rule',
+			},
+			tree:true,
+			treelevel:true,
+			tpl:'{$namespace}-rule',
+			target:'#{$namespace}-rule_main',
+		});
+	});
+</script>
+<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	<h4 class="modal-title">分配角色</h4>
+</div>
+<div class="modal-body">
+	<form action="" id="{$namespace}Form">
+		<div id="{$namespace}-rule_main"></div>
+		<input type="hidden" name="group_id" value="{:I('id')}">
+	</form>
+</div>
+<div class="modal-footer">
+	<button type="button" class="btn btn-success" onclick="EBCMS.Forms.FormSubmit();">提交</button>
+	<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+</div>
+<script id="{$namespace}-rule" type="text/html">
+	<form id="{$namespace}ruleform">
+		<ul class="list-group tree tree_first" style="border-top: 1px solid #ddd;border-right: 1px solid #ddd;border-bottom: 1px solid #ddd;">
+			{{include '{$namespace}-rule-item'}}
+		</ul>
+	</form>
+</script>
+<script id="{$namespace}-rule-item" type="text/html">
+	{{each rows as v n}}
+		<li class="list-group-item">
+		<input type="checkbox" name="rule_ids[]" value="{{v.id}}" id="{$namespace}_rule_item_{{v.id}}" {{if v.checked}}checked="checked"{{/if}}>
+			<label for='{$namespace}_rule_item_{{v.id}}'><span class="text-warning {{v.iconcls}}"></span> {{v.title}}</label>
+		</li>
+		{{if v.rows}}
+		<li class="list-group-item nopadding">
+			<ul class="list-group tree">
+				{{include '{$namespace}-rule-item' v}}
+			</ul>
+		</li>
+		{{/if}}
+	{{/each}}
+</script>

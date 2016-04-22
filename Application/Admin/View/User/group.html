@@ -1,0 +1,53 @@
+<script>
+	$(function(){
+		Namespace.register("EBCMS.Forms");
+		EBCMS.Forms.FormSubmit = function FormSubmit(){
+			EBCMS.CORE.submit({
+				url:'{:U('group')}',
+				form:'{$namespace}Form',
+				success:function(data){
+					EBCMS.MSG.tips('提交成功！');
+					$('#lgModal').modal('toggle');
+					EBCMS.{$namespace}.refresh();
+				}
+			});
+		};
+		EBCMS.CORE.load({
+			url: '{:U('group')}',
+			queryParams:{
+				user_id:'{:I('id')}',
+				__type:'group',
+			},
+			tpl:'{$namespace}-group',
+			target:'#{$namespace}-group_main',
+		});
+	});
+</script>
+<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	<h4 class="modal-title">分配角色</h4>
+</div>
+<div class="modal-body">
+	<form action="" id="{$namespace}Form">
+		<div id="{$namespace}-group_main"></div>
+		<input type="hidden" name="user_id" value="{:I('id')}">
+	</form>
+</div>
+<div class="modal-footer">
+	<button type="button" class="btn btn-success" onclick="EBCMS.Forms.FormSubmit();">提交</button>
+	<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+</div>
+<script id="{$namespace}-group" type="text/html">
+	<table class="table table-bordered">
+		<tbody>
+			{{each rows as v n}}
+				<tr>
+					<td>
+						<input type="checkbox" id="{$namespace}_group_item_{{v.id}}" name="group_ids[]" value="{{v.id}}" {{if v.checked}}checked{{/if}}>
+						<label for='{$namespace}_group_item_{{v.id}}'><span class="text-warning {{v.iconcls}}"></span> {{v.title}}</label>
+					</td>
+				</tr>
+			{{/each}}
+		</tbody>
+	</table>
+</script>

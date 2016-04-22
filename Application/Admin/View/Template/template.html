@@ -1,0 +1,99 @@
+<script>
+	Namespace.register("EBCMS.[namespace]");
+	$(function(){
+		EBCMS.[namespace].refresh = function refresh(dir){
+			if (dir) {
+				EBCMS.[namespace].dir = dir;
+			};
+			EBCMS.CORE.load({
+				url:'{:U('Template/index')}',
+				queryParams:{
+					dir:EBCMS.[namespace].dir,
+				},
+				tpl:'[namespace]-table',
+				target:'#[namespace]_table',
+			});
+		};
+		// 获取添加表单
+		EBCMS.[namespace].add = function add(path){
+			EBCMS.CORE.get({
+				url:'{:U('Template/add')}',
+				queryParams:{
+					path:path,
+				},
+				target:'#lgModal .modal-content',
+			});
+		};
+		// 获取修改表单
+		EBCMS.[namespace].save = function save(filename){
+			EBCMS.CORE.get({
+				url:'{:U('Template/save')}',
+				queryParams:{
+					filename:filename,
+				},
+				target:'#lgModal .modal-content',
+			});
+		};
+		EBCMS.[namespace].del = function del(filename){
+			EBCMS.MSG.confirm('确定删除该条内容吗？<br/>删除后不可恢复！',function(){
+				EBCMS.CORE.submit({
+					url:'{:U('Template/delete')}',
+					queryParams:{
+						filename:filename,
+					},
+					success:function(data){
+						EBCMS.MSG.tips('删除成功！');
+						EBCMS.[namespace].refresh();
+					}
+				});
+			});
+		};
+	});
+</script>
+
+<script id="[namespace]-box" type="text/html">
+	<div class="header">
+		<div class="header-title" onclick="EBCMS.[namespace].refresh();">模板管理</div>
+	</div>
+	<div class="body" style="bottom:0px;">
+		<div id="[namespace]_table" class="box"></div>
+	</div>
+</script>
+
+<script id="[namespace]-table" type="text/html">
+	<ul class="list-group tree tree_first" style="border-top: 1px solid #ddd;border-right: 1px solid #ddd;border-bottom: 1px solid #ddd;">
+		{{include '[namespace]-table-item'}}
+	</ul>
+</script>
+
+<script id="[namespace]-table-item" type="text/html">
+	{{each rows as v n}}
+		{{if v.rows}}
+		<li class="list-group-item">
+			<div class="btn-group btn-group-xs pull-right" role="group" aria-label="...">
+				{{if access(0,'[namespace]','add')}}
+				<a class="btn btn-primary btn-xs" href="javascript:EBCMS.[namespace].add('{{v.path}}');" role="button">添加</a>
+				{{/if}}
+			</div>
+			<i class="iconfont icon-folder"></i>&nbsp;&nbsp;{{v.title}}
+		</li>
+		<li class="list-group-item nopadding">
+			<ul class="list-group tree">
+				{{include '[namespace]-table-item' v}}
+			</ul>
+		</li>
+		{{else}}
+		<li class="list-group-item">
+			<div class="btn-group btn-group-xs pull-right" role="group" aria-label="...">
+				{{if access(0,'[namespace]','save')}}
+				<a class="btn btn-primary btn-xs" href="javascript:EBCMS.[namespace].save('{{v.filename}}');" role="button">修改</a>
+				{{/if}}
+				{{if access(0,'[namespace]','delete')}}
+				<a class="btn btn-primary btn-xs" href="javascript:EBCMS.[namespace].del('{{v.filename}}');" role="button">删除</a>
+				{{/if}}
+			</div>
+			<span class="iconfont icon-file"></span>&nbsp;{{v.title}}
+		</li>
+		{{/if}}
+	{{/each}}
+</script>

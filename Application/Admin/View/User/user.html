@@ -1,0 +1,154 @@
+<script>
+	$(function(){
+		Namespace.register("EBCMS.[namespace]");
+		EBCMS.[namespace].queryParams = {
+			page:1,
+			rows:20,
+			__model:'user',
+			__relation:['group'],
+		};
+		EBCMS.[namespace].refresh = function refresh(p){
+			if (p) {
+				$.each(p, function(index, val) {
+					if (typeof val == 'object') {
+						EBCMS.[namespace].queryParams[index] = $.extend(EBCMS.[namespace].queryParams[index], p[index]);
+						delete p[index];
+					};
+				});
+				$.extend(EBCMS.[namespace].queryParams, p);
+			};
+			EBCMS.CORE.api({
+				queryParams:EBCMS.[namespace].queryParams,
+				tpl:'[namespace]-table',
+				target:'#[namespace]_table',
+				compileAfter:function(p){
+					EBCMS.FN.renderPage({
+						namespace:'[namespace]',
+						total:p.data.total,
+						filter:{
+							lock:true,
+							status:true,
+							sort:{
+								filters:{id:'id',login_times:'登录次数',login_time:'最后登录时间',update_time:'更新时间',sort:'权重',create_time:'创建时间'}
+							},
+							order:true,
+							rows:true,
+						},
+					});
+				},
+			});
+		};
+		EBCMS.[namespace].save = function save(id){
+			EBCMS.CORE.get({
+				url:'{:U('User/save')}',
+				queryParams:{
+					id:id,
+				},
+				target:'#lgModal .modal-content',
+			});
+		};
+		EBCMS.[namespace].add = function add(pid){
+			EBCMS.CORE.get({
+				url:'{:U('User/add')}',
+				target:'#lgModal .modal-content',
+			});
+		};
+		/*分配用户组*/
+		EBCMS.[namespace].group = function group(id){
+			EBCMS.CORE.get({
+				url:'{:U('User/group')}',
+				queryParams:{
+					id:id,
+				},
+				target:'#lgModal .modal-content',
+			});
+		};
+		/*重置密码*/
+		EBCMS.[namespace].password = function password(id){
+			EBCMS.CORE.get({
+				url:'{:U('User/password')}',
+				queryParams:{
+					id:id,
+				},
+				target:'#lgModal .modal-content',
+			});
+		};
+		EBCMS.CORE.compile({
+			tpl:'[namespace]-box',
+			target:'#[namespace]_box',
+			compileAfter:function(){
+				EBCMS.[namespace].refresh();
+			}
+		});
+	});
+</script>
+
+<script id="[namespace]-box" type="text/html">
+	<div class="header">
+		<div class="header-title" onclick="EBCMS.[namespace].refresh();">会员管理</div>
+		<div class="btn-group pull-right" role="group" aria-label="...">
+			<a class="btn btn-success" href="javascript:EBCMS.[namespace].add()">添加</a>
+		</div>
+	</div>
+	<div class="body">
+		<div id="[namespace]_table" class="box"></div>
+	</div>
+	<div class="footer">
+		<div id="[namespace]_page" class="footer-page"></div>
+	</div>
+</script>
+
+<script id="[namespace]-table" type="text/html">
+	<table class="table table-bordered">
+		<tbody>
+			<tr>
+				<th>id</th>
+				<th>邮箱</th>
+				<th>昵称</th>
+				<th style="width:270px;">操作</th>
+			</tr>
+			{{each rows as v n}}
+				<tr>
+					<td>{{v.id}}</td>
+					<td>
+						{{v.email}}
+						{{each v.group as value index}}
+							<span class="text-danger">{{value.title}}</span>
+						{{/each}}
+					</td>
+					<td>{{v.nickname}}</td>
+					<td>
+						<div class="btn-group btn-group-xs" role="group" aria-label="...">
+						{{if access(0,'[namespace]','lock')}}
+							{{if v.locked==1}}
+							<a class="btn btn-primary" href="javascript:EBCMS.ACT.lock('{:U('User/lock')}','{{v.id}}','0','[namespace]');">已锁</a>
+							{{else}}
+							<a class="btn btn-primary" href="javascript:EBCMS.ACT.lock('{:U('User/lock')}','{{v.id}}','1','[namespace]');">未锁</a>
+							{{/if}}
+						{{/if}}
+						{{if access(v.locked,'[namespace]','status')}}
+							{{if v.status==1}}
+							<a class="btn btn-primary" href="javascript:EBCMS.ACT.status('{:U('User/status')}','{{v.id}}','0','[namespace]');">已审</a>
+							{{else}}
+							<a class="btn btn-primary" href="javascript:EBCMS.ACT.status('{:U('User/status')}','{{v.id}}','1','[namespace]');">未审</a>
+							{{/if}}
+						{{/if}}
+						{{if access(v.locked,'[namespace]','save')}}
+						<a class="btn btn-primary" href="javascript:EBCMS.[namespace].save('{{v.id}}');">编辑</a>
+						{{/if}}
+						{{if access(v.locked,'[namespace]','group')}}
+						<a class="btn btn-primary" href="javascript:EBCMS.[namespace].group('{{v.id}}');">角色</a>
+						{{/if}}
+						{{if access(v.locked,'[namespace]','password')}}
+						<a class="btn btn-primary" href="javascript:EBCMS.[namespace].password('{{v.id}}');">密码</a>
+						{{/if}}
+						{{if access(v.locked,'[namespace]','delete')}}
+						<a class="btn btn-primary" href="javascript:EBCMS.ACT.del('{:U('User/delete')}','{{v.id}}','[namespace]');">删除</a>
+						{{/if}}
+						</div>
+					</td>
+				</tr>
+			{{/each}}
+		</tbody>
+	</table>
+</script>

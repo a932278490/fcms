@@ -1,0 +1,81 @@
+<script>
+	$(function(){
+		Namespace.register("EBCMS.[namespace]type");
+		EBCMS.[namespace]type.refresh = function refresh(){
+			EBCMS.CORE.datadict({
+				queryParams:{
+					sort:'sort',
+					order:'desc',
+					datadict:'attachtype',
+				},
+				tree:true,
+				treelevel:true,
+				loadAfter:function(data){
+					EBCMS.CORE.compile({
+						data:data,
+						tpl:'[namespace]type-table',
+						target:'#[namespace]type_table',
+						compileAfter:function(p){
+							var $lists = $(p.target).find('a.list-group-item');
+							$lists.click(function(){
+								$lists.removeClass('active');
+								$(this).addClass('active');
+							});
+						}
+					});
+				}
+			});
+		};
+		EBCMS.[namespace]type.changetype = function changetype(type,p){
+			EBCMS.CORE.compile({
+				tpl:'[namespace]-box',
+				target:'#[namespace]_box',
+				compileAfter:function(){
+					EBCMS.[namespace].queryParams.__where = {
+						ext:['in',type.split(',')],
+					};
+					EBCMS.[namespace].refresh();
+				}
+			});
+		};
+		EBCMS.CORE.compile({
+			tpl:'[namespace]type-box',
+			target:'#[namespace]type_box',
+			compileAfter:function(){
+				EBCMS.[namespace]type.refresh();
+			}
+		});
+	});
+</script>
+
+<script id="[namespace]type-box" type="text/html">
+	<div class="header">
+		<div class="header-title" onclick="EBCMS.[namespace]type.refresh();">附件分类</div>
+	</div>
+	<div class="body" style="bottom:0px;">
+		<div class="box" id="[namespace]type_table"></div>
+	</div>
+</script>
+
+<script id="[namespace]type-table" type="text/html">
+	<div class="list-group tree tree_first" style="border-top: 1px solid #ddd;border-right: 1px solid #ddd;border-bottom: 1px solid #ddd;">
+		{{include '[namespace]type-table-item'}}
+	</div>
+</script>
+
+<script id="[namespace]type-table-item" type="text/html">
+	{{each rows as v n}}
+		{{if v.rows}}
+			<a class="list-group-item" href="javascript:EBCMS.[namespace]type.changetype('{{v.id}}',this);">{{v.title}}
+			</a>
+			<div class="list-group-item nopadding">
+				<div class="list-group tree nopadding">
+					{{include '[namespace]type-table-item' v}}
+				</div>
+			</div>
+		{{else}}
+			<a class="list-group-item" href="javascript:EBCMS.[namespace]type.changetype('{{v.id}}',this);">{{v.title}}
+			</a>
+		{{/if}}
+	{{/each}}
+</script>

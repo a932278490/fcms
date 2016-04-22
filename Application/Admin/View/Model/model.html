@@ -1,0 +1,131 @@
+<script>
+	Namespace.register("EBCMS.[namespace]");
+	$(function(){
+		EBCMS.[namespace].refresh = function refresh(){
+			EBCMS.CORE.api({
+				queryParams:{
+					sort:'sort',
+					order:'desc',
+					__model:'model',
+				},
+				group:'group',
+				tpl:'[namespace]-table',
+				target:'#[namespace]_table',
+				compileAfter:function(data){
+					$('#[namespace]_table').find('.input_sort').focus(function(){
+						EBCMS.[namespace].sortvalue = $(this).val();
+					}).blur(function(){
+						var $this = $(this);
+						if ($this.val() != EBCMS.[namespace].sortvalue) {
+							EBCMS.ACT.togglefield('{:U('Model/resort')}',$this.data('id'),$this.val(),'[namespace]','resort');
+						};
+					});
+				},
+			});
+		};
+		EBCMS.[namespace].save = function save(id){
+			EBCMS.CORE.get({
+				url:'{:U('Model/save')}',
+				queryParams:{
+					id:id,
+				},
+				target:'#lgModal .modal-content',
+			});
+		};
+		EBCMS.[namespace].add = function add(){
+			EBCMS.CORE.get({
+				url:'{:U('Model/add')}',
+				target:'#lgModal .modal-content',
+			});
+		};
+		EBCMS.[namespace].changemodel = function changemodel(category_id){
+			EBCMS.CORE.compile({
+				tpl:'[namespace]field-box',
+				target:'#[namespace]field_box',
+				compileAfter:function(){
+					EBCMS.[namespace]field.queryParams.__where = {
+						category_id:['eq',category_id]
+					};
+					EBCMS.[namespace]field.refresh();
+				}
+			});
+		};
+		EBCMS.CORE.compile({
+			tpl:'[namespace]-box',
+			target:'#[namespace]_box',
+			compileAfter:function(){
+				EBCMS.[namespace].refresh();
+			}
+		});
+	});
+</script>
+
+<script id="[namespace]-box" type="text/html">
+	<div class="header">
+		<div class="header-title" onclick="EBCMS.[namespace].refresh();">模型管理</div>
+		<div class="btn-group pull-right" role="group" aria-label="...">
+			<a class="btn btn-success" href="javascript:EBCMS.[namespace].add()">添加</a>
+		</div>
+	</div>
+	<div class="body" style="bottom:0px;">
+		<div class="box" id="[namespace]_table"></div>
+	</div>
+</script>
+
+<script id="[namespace]-table" type="text/html">
+	<div class="table-responsive">
+		<table class="table table-bordered">
+			<tbody>
+				<tr>
+					<th>id</th>
+					<th>名称</th>
+					<th>排序</th>
+					<th style="width:210px;">操作</th>
+				</tr>
+				{{each groups as data group}}
+					<tr>
+						<th colspan="4">{{group}}</th>
+					</tr>
+					{{include '[namespace]-table-item' data}}
+				{{/each}}
+			</tbody>
+		</table>
+	</div>
+</script>
+
+<script id="[namespace]-table-item" type="text/html">
+	{{each rows as v n}}
+		<tr>
+			<td>{{v.id}}</td>
+			<td>{{v.title}}</td>
+			<td><input value="{{v.sort}}" class="input_sort" data-id="{{v.id}}"></td>
+			<td>
+				<div class="btn-group btn-group-xs" role="group" aria-label="...">
+				{{if access(0,'[namespace]','lock')}}
+					{{if v.locked==1}}
+					<a class="btn btn-primary" href="javascript:EBCMS.ACT.lock('{:U('Model/lock')}','{{v.id}}','0','[namespace]');">已锁</a>
+					{{else}}
+					<a class="btn btn-primary" href="javascript:EBCMS.ACT.lock('{:U('Model/lock')}','{{v.id}}','1','[namespace]');">未锁</a>
+					{{/if}}
+				{{/if}}
+				{{if access(v.locked,'[namespace]','status')}}
+					{{if v.status==1}}
+					<a class="btn btn-primary" href="javascript:EBCMS.ACT.status('{:U('Model/status')}','{{v.id}}','0','[namespace]');">已审</a>
+					{{else}}
+					<a class="btn btn-primary" href="javascript:EBCMS.ACT.status('{:U('Model/status')}','{{v.id}}','1','[namespace]');">未审</a>
+					{{/if}}
+				{{/if}}
+				{{if access(v.locked,'[namespace]','save')}}
+				<a class="btn btn-primary" href="javascript:EBCMS.[namespace].save('{{v.id}}');">编辑</a>
+				{{/if}}
+				{{if access(v.locked,'[namespace]','delete')}}
+				<a class="btn btn-primary" href="javascript:EBCMS.ACT.del('{:U('Model/delete')}','{{v.id}}','[namespace]');">删除</a>
+				{{/if}}
+				{{if access(v.locked,'[namespace]field','index')}}
+				<button class="btn btn-primary" onclick="EBCMS.[namespace].changemodel('{{v.id}}');">字段</button>
+				{{/if}}
+				</div>
+			</td>
+		</tr>
+	{{/each}}
+</script>

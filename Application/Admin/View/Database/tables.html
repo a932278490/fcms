@@ -1,0 +1,174 @@
+<script>
+	$(function(){
+		Namespace.register("EBCMS.[namespace]table");
+		EBCMS.[namespace]table.refresh = function refresh(){
+			EBCMS.CORE.api({
+				queryParams:{
+					sort:'sort',
+					order:'desc',
+					__model:'menu',
+					__api:'datatables',
+				},
+				tpl:'[namespace]table-table',
+				target:'#[namespace]table_table',
+			});
+		};
+		EBCMS.[namespace]table.optimize = function optimize(table){
+			if (!table) {
+				table = EBCMS.FN.getCheckedId('[namespace]table');
+			};
+			if (table) {
+				EBCMS.ACT.ajaxPost({
+					url:'{:U('optimize')}',
+					queryParams:{
+						table:table,
+					},
+					success:function(data){
+						if (data.status) {
+							EBCMS.MSG.tips(data.info);
+							EBCMS.[namespace]table.refresh();
+						}else{
+							EBCMS.MSG.alert(data.info);
+						};
+					}
+				});
+			}else{
+				EBCMS.MSG.alert('请选择要优化的数据表');
+			};
+		};
+		EBCMS.[namespace]table.repair = function repair(table){
+			if (!table) {
+				table = EBCMS.FN.getCheckedId('[namespace]table');
+			};
+			if (table) {
+				EBCMS.ACT.ajaxPost({
+					url:'{:U('repair')}',
+					queryParams:{
+						table:table,
+					},
+					success:function(data){
+						if (data.status) {
+							EBCMS.MSG.tips(data.info);
+							EBCMS.[namespace]table.refresh();
+						}else{
+							EBCMS.MSG.alert(data.info);
+						};
+					}
+				});
+			}else{
+				EBCMS.MSG.alert('请选择要修复的数据表');
+			};
+		};
+		EBCMS.[namespace]table.showcreate = function showcreate(table){
+			EBCMS.CORE.load({
+				url:'{:U('showcreate')}',
+				queryParams:{
+					table:table,
+				},
+				tpl:'[namespace]table-showcreate',
+				target:'#lgModal .modal-content',
+			});
+		};
+		EBCMS.[namespace]table.exportsform = function exportsform(table){
+			var tables = [];
+			if (table) {
+				tables[0] = table;
+			}else{
+				tables = EBCMS.FN.getCheckedId('[namespace]table');
+			};
+			if (tables.length) {
+				EBCMS.CORE.get({
+					url:'{:U('exports')}',
+					queryParams:{
+						tables:tables,
+					},
+					target:'#lgModal .modal-content',
+				});
+			}else{
+				EBCMS.MSG.alert('请选择要备份的数据表');
+			};
+		};
+		EBCMS.CORE.compile({
+			tpl:'[namespace]table-box',
+			target:'#[namespace]table_box',
+			compileAfter:function(){
+				EBCMS.[namespace]table.refresh();
+			}
+		});
+	});
+</script>
+
+<script id="[namespace]table-box" type="text/html">
+	<div class="header">
+		<div class="header-title" onclick="EBCMS.[namespace]table.refresh();">数据库管理</div>
+		<div class="btn-group pull-right" role="group" aria-label="...">
+			<a class="btn btn-success" href="javascript:EBCMS.[namespace]table.exportsform()">备份</a>
+			<a class="btn btn-success" href="javascript:EBCMS.[namespace]table.optimize()">优化</a>
+			<a class="btn btn-success" href="javascript:EBCMS.[namespace]table.repair()">修复</a>
+		</div>
+	</div>
+	<div class="body" style="bottom:0px;">
+		<div class="box" id="[namespace]table_table"></div>
+	</div>
+</script>
+
+<script id="[namespace]table-table" type="text/html">
+	<table class="table table-bordered">
+		<tbody>
+			<tr>
+				<th onclick="EBCMS.FN.inverse('[namespace]table');" style="cursor:pointer">表（点击反选）</th>
+				<th>备注</th>
+				<!-- <th>引擎</th>
+				<th>整理</th> -->
+				<th>数据量</th>
+				<th>大小</th>
+				<th>碎片</th>
+				<th style="width:210px;">操作</th>
+			</tr>
+			{{each rows as v n}}
+				<tr>
+					<th>
+						<input type="checkbox" name="id" value="{{v.name}}" id="[namespace]table_item_{{v.name}}">
+						<label for='[namespace]table_item_{{v.name}}'>{{v.name}}</label>
+					</th>
+					<td>{{v.comment}}</td>
+					<!-- <td>{{v.engine}}</td>
+					<td>{{v.collation}}</td> -->
+					<td>{{v.rows}}</td>
+					<td>{{v.data_length}}</td>
+					<td>{{v.data_free}}</td>
+					<td>
+					<div class="btn-group btn-group-xs" role="group" aria-label="...">
+						{{if access(0,'[namespace]','optimize')}}
+						<a class="btn btn-primary" href="javascript:EBCMS.[namespace]table.optimize('{{v.name}}');">优化</a>
+						{{/if}}
+						{{if access(0,'[namespace]','repair')}}
+						<a class="btn btn-primary" href="javascript:EBCMS.[namespace]table.repair('{{v.name}}');">修复</a>
+						{{/if}}
+						{{if access(0,'[namespace]','showcreate')}}
+						<a class="btn btn-primary" href="javascript:EBCMS.[namespace]table.showcreate('{{v.name}}');">详情</a>
+						{{/if}}
+						{{if access(0,'[namespace]','exports')}}
+						<a class="btn btn-primary" href="javascript:EBCMS.[namespace]table.exportsform('{{v.name}}');">备份</a>
+						{{/if}}
+					</div>
+					</td>
+				</tr>
+			{{/each}}
+		</tbody>
+	</table>
+</script>
+
+<!-- 查看表详情 -->
+<script id="[namespace]table-showcreate" type="text/html">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4 class="modal-title">表 " <span class="text-danger">{{table}}</span> " 的创建信息</h4>
+	</div>
+	<div class="modal-body">
+		<pre>{{tableinfo}}</pre>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+	</div>
+</script>

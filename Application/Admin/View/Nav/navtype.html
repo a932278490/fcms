@@ -1,0 +1,85 @@
+<script>
+	$(function(){
+		Namespace.register("EBCMS.[namespace]type");
+		EBCMS.[namespace]type.refresh = function refresh(){
+			EBCMS.CORE.api({
+				queryParams:{
+					sort:'sort',
+					order:'desc',
+					__model:'Navcate',
+				},
+				tree:true,
+				treelevel:true,
+				loadAfter:function(data){
+					EBCMS.CORE.compile({
+						data:data,
+						tpl:'[namespace]type-table',
+						target:'#[namespace]type_table',
+						compileAfter:function(p){
+							var $lists = $(p.target).find('a.list-group-item');
+							$lists.click(function(){
+								$lists.removeClass('active');
+								$(this).addClass('active');
+							});
+						}
+					});
+				}
+			});
+		};
+		EBCMS.[namespace]type.changecate = function changecate(category_id){
+			EBCMS.CORE.compile({
+				tpl:'[namespace]-box',
+				target:'#[namespace]_box',
+				compileAfter:function(){
+					EBCMS.[namespace].category_id = category_id;
+					EBCMS.[namespace].queryParams.__where = {
+						category_id:['eq',category_id],
+					};
+					EBCMS.[namespace].refresh();
+				}
+			});
+		};
+		EBCMS.CORE.compile({
+			tpl:'[namespace]type-box',
+			target:'#[namespace]type_box',
+			compileAfter:function(){
+				EBCMS.[namespace]type.refresh();
+			}
+		});
+	});
+</script>
+
+<script id="[namespace]type-box" type="text/html">
+	<div class="header">
+		<div class="btn-group pull-right" role="group" aria-label="...">
+			<a class="btn btn-success" href="javascript:EBCMS.CORE.changemain('{:U('Navcate/index')}');">管理</a>
+		</div>
+		<div class="header-title" onclick="EBCMS.[namespace]type.refresh();">导航分类</div>
+	</div>
+	<div class="body" style="bottom:0px;">
+		<div class="box" id="[namespace]type_table"></div>
+	</div>
+</script>
+
+<script id="[namespace]type-table" type="text/html">
+	<div class="list-group tree tree_first" style="border-top: 1px solid #ddd;border-right: 1px solid #ddd;border-bottom: 1px solid #ddd;">
+		{{include '[namespace]type-table-item'}}
+	</div>
+</script>
+
+<script id="[namespace]type-table-item" type="text/html">
+	{{each rows as v n}}
+		{{if v.rows}}
+			<a class="list-group-item" href="javascript:EBCMS.[namespace]type.changecate('{{v.id}}');">{{v.title}}
+			</a>
+			<div class="list-group-item nopadding">
+				<div class="list-group tree nopadding">
+					{{include '[namespace]type-table-item' v}}
+				</div>
+			</div>
+		{{else}}
+			<a class="list-group-item" href="javascript:EBCMS.[namespace]type.changecate('{{v.id}}');"><span class="badge">{{v.mark}}</span>{{v.title}}
+			</a>
+		{{/if}}
+	{{/each}}
+</script>

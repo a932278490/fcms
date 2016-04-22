@@ -1,0 +1,67 @@
+<script>
+	$(function(){
+		EBCMS.{$namespace}.exports = function exports(queryParams){
+			$.ajax({
+				url: '{:U('exports')}',
+				type: 'POST',
+				dataType: 'JSON',
+				data: queryParams,
+				success:function(data){
+					if (data.status) {
+						if (data.info.step==3) {
+							$('#{$namespace}_exports_'+data.info.table).html(data.info.rate+' %');
+							EBCMS.{$namespace}.refresh();
+							EBCMS.{$namespace}table.refresh();
+							EBCMS.MSG.alert('备份成功！');
+						}else if(data.info.step==2){
+							$('#{$namespace}_exports_step_1').html('成功！');
+							$('#{$namespace}_exports_'+data.info.table).html(data.info.rate+' %');
+							if (data.info.pretable) {
+								$('#{$namespace}_exports_'+data.info.pretable).html('100 %');
+							};
+							EBCMS.{$namespace}.exports(data.info);
+						}else{
+							$('#{$namespace}_exports_step_'+Number(data.info.step-1)).html('成功！');
+							EBCMS.{$namespace}.exports(data.info);
+						};
+					}else{
+						EBCMS.MSG.alert(data.info);
+					};
+				},
+				error:function(XMLHttpRequest, textStatus, errorThrown){
+					EBCMS.MSG.alert('数据请求失败：'+textStatus+' '+errorThrown+'<br />请求地址:'+url+'<br />AJAX请求信息：'+JSON.stringify(this)+'<br /><span style="color:red">如无法解决该问题，请联系EBCMS官方获取帮助</span>');
+				}
+			});
+		}
+	});
+</script>
+<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	<h4 class="modal-title">数据备份</h4>
+</div>
+<div class="modal-body">
+	<h5 class="text-warning"><b><span class="glyphicon glyphicon-phone-alt"></span> 备份初始化</b></h5>
+	<ul class="list-group">
+		<li class="list-group-item">
+			<span class="badge" id="{$namespace}_exports_step_0">?</span>
+			检测备份进程
+		</li>
+		<li class="list-group-item">
+			<span class="badge" id="{$namespace}_exports_step_1">?</span>
+			创建备份文件
+		</li>
+	</ul>
+	<h5 class="text-warning"><b><span class="glyphicon glyphicon-phone-alt"></span> 备份初始化</b></h5>
+	<ul class="list-group">
+		<foreach name='tables' item='vo'>
+			<li class="list-group-item">
+				<span class="badge" id="{$namespace}_exports_{$vo}">...</span>
+				{$vo}
+			</li>
+		</foreach>
+	</ul>
+</div>
+<div class="modal-footer">
+	<button type="button" class="btn btn-success" onclick="EBCMS.{$namespace}.exports({step:0});">开始</button>
+	<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+</div>

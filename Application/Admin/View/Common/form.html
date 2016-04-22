@@ -1,0 +1,121 @@
+<eq name='__modal' value='1'>
+	<script>
+		$(function(){
+			Namespace.register("EBCMS.Forms");
+			EBCMS.Forms.FormSubmit = function FormSubmit(){
+				EBCMS.CORE.submit({
+					url:'{$_form.action}',
+					form:'{$_form.formtime}Form',
+					success:function(data){
+						EBCMS.MSG.tips('提交成功！');
+						$('#lgModal').modal('toggle');
+						EBCMS.{$namespace}.refresh();
+					}
+				});
+			};
+			EBCMS.FN.tabs('#{$_form.formtime}_tabs','#{$_form.formtime}_tabboxs');
+		});
+	</script>
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4 class="modal-title text-danger"><b>{$_form.group}&nbsp;-&nbsp;{$_form.title}</b></h4>
+	</div>
+	<div class="modal-body">
+		<form class="form-horizontal" id="{$_form.formtime}Form">
+			<div class="tabs" id="{$_form.formtime}_tabs">
+				<foreach name='_groups' item='_fields'>
+					<div class="tab-head">{$key}</div>
+				</foreach>
+				<notempty name='_extgroups'>
+					<foreach name='_extgroups' item='_fields'>
+						<div class="tab-head">{$key}</div>
+					</foreach>
+				</notempty>
+			</div>
+			<div class="tabboxs" id="{$_form.formtime}_tabboxs">
+				<foreach name='_groups' item='_fields'>
+					<div class="tab-body">
+						<foreach name='_fields' item='_field'>
+							<include file="Admin@Common/formfield"/>
+						</foreach>
+					</div>
+				</foreach>
+				<notempty name='_extgroups'>
+					<foreach name='_extgroups' item='_fields'>
+						<div class="tab-body">
+							<foreach name='_fields' item='_field'>
+								<include file="Admin@Common/formfield"/>
+							</foreach>
+						</div>
+					</foreach>
+				</notempty>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-danger" onclick="EBCMS.Forms.FormSubmit();">提交</button>
+		<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+	</div>
+<else/>
+	<script>
+		$(function(){
+			Namespace.register("EBCMS.Forms");
+			EBCMS.Forms.FormSubmit = function FormSubmit(){
+				EBCMS.CORE.submit({
+					url:'{$_form.action}',
+					form:'{$_form.formtime}Form',
+					success:function(data){
+						EBCMS.MSG.tips('提交成功！');
+						EBCMS.Forms.closes();
+					}
+				});
+			};
+			EBCMS.Forms.closes = function closes(){
+				$('#main').show().siblings().hide();
+				EBCMS.{$namespace}.refresh();
+			};
+			EBCMS.FN.tabs('#{$_form.formtime}_tabs','#{$_form.formtime}_tabboxs');
+		});
+	</script>
+	<div class="header">
+		<div class="pull-right" role="group" aria-label="...">
+			<a class="btn btn-default" href="javascript:EBCMS.Forms.closes();">关闭</a>
+			<a class="btn btn-danger" href="javascript:EBCMS.Forms.FormSubmit();">提交</a>
+		</div>
+		<div class="header-title text-danger"><b>{$_form.group}&nbsp;-&nbsp;{$_form.title}</b></div>
+	</div>
+	<div class="body" style="bottom: 0px;">
+		<div class="box" id="{$namespace}_table">
+			<form class="form-horizontal xxxx" id="{$_form.formtime}Form">
+				<div class="tabs" id="{$_form.formtime}_tabs">
+					<foreach name='_groups' item='_fields'>
+						<div class="tab-head">{$key}</div>
+					</foreach>
+					<notempty name='_extgroups'>
+						<foreach name='_extgroups' item='_fields'>
+							<div class="tab-head">{$key}</div>
+						</foreach>
+					</notempty>
+				</div>
+				<div class="tabboxs" id="{$_form.formtime}_tabboxs">
+					<foreach name='_groups' item='_fields'>
+						<div class="tab-body">
+							<foreach name='_fields' item='_field'>
+								<include file="Admin@Common/formfield"/>
+							</foreach>
+						</div>
+					</foreach>
+					<notempty name='_extgroups'>
+						<foreach name='_extgroups' item='_fields'>
+							<div class="tab-body">
+								<foreach name='_fields' item='_field'>
+									<include file="Admin@Common/formfield"/>
+								</foreach>
+							</div>
+						</foreach>
+					</notempty>
+				</div>
+			</form>
+		</div>
+	</div>
+</eq>

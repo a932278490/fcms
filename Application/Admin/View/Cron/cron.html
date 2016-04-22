@@ -1,0 +1,134 @@
+<script>
+	$(function(){
+		Namespace.register("EBCMS.[namespace]");
+		EBCMS.[namespace].queryParams = {
+			page:1,
+			rows:20,
+			__model:'cron',
+		};
+		EBCMS.[namespace].refresh = function refresh(p){
+			if (p) {
+				$.each(p, function(index, val) {
+					if (typeof val == 'object') {
+						EBCMS.[namespace].queryParams[index] = $.extend(EBCMS.[namespace].queryParams[index], p[index]);
+						delete p[index];
+					};
+				});
+				$.extend(EBCMS.[namespace].queryParams, p);
+			};
+			EBCMS.CORE.api({
+				queryParams:EBCMS.[namespace].queryParams,
+				tpl:'[namespace]-table',
+				target:'#[namespace]_table',
+				compileAfter:function(p){
+					EBCMS.FN.renderPage({
+						namespace:'[namespace]',
+						total:p.data.total,
+						filter:{
+							lock:true,
+							status:true,
+						},
+					});
+				},
+			});
+		};
+		EBCMS.[namespace].save = function save(id){
+			EBCMS.CORE.get({
+				url:'{:U('Cron/save')}',
+				queryParams:{
+					id:id,
+				},
+				target:'#lgModal .modal-content',
+			});
+		};
+		EBCMS.[namespace].config = function config(id){
+			EBCMS.CORE.get({
+				url:'{:U('Cron/save?__type=config')}',
+				queryParams:{
+					id:id,
+				},
+				target:'#lgModal .modal-content',
+			});
+		};
+		EBCMS.[namespace].add = function add(pid){
+			EBCMS.CORE.get({
+				url:'{:U('Cron/add')}',
+				target:'#lgModal .modal-content',
+			});
+		};
+		/*分配用户组*/
+		EBCMS.[namespace].build = function build(){
+			EBCMS.ACT.ajaxPost({
+				url:'{:U('Cron/build')}',
+			});
+		};
+		EBCMS.CORE.compile({
+			tpl:'[namespace]-box',
+			target:'#[namespace]_box',
+			compileAfter:function(){
+				EBCMS.[namespace].refresh();
+			}
+		});
+	});
+</script>
+
+<script id="[namespace]-box" type="text/html">
+	<div class="header">
+		<div class="header-title" onclick="EBCMS.[namespace].refresh();">定时任务</div>
+		<div class="btn-group pull-right" role="group" aria-label="...">
+			 <button class="btn btn-success" onclick="javascript:EBCMS.[namespace].add()">添加</button>
+			 <button class="btn btn-success" onclick="javascript:EBCMS.[namespace].build()">生成</button>
+		</div>
+	</div>
+	<div class="body">
+		<div class="box" id="[namespace]_table"></div>
+	</div>
+	<div class="footer">
+		<div id="[namespace]_page" class="footer-page"></div>
+	</div>
+</script>
+
+<script id="[namespace]-table" type="text/html">
+	<table class="table table-bordered">
+		<tbody>
+			<tr>
+				<th>id</th>
+				<th>文件</th>
+				<th style="width:210px;">操作</th>
+			</tr>
+			{{each rows as v n}}
+				<tr>
+					<td>{{v.id}}</td>
+					<td>
+						{{v.cron}}
+					</td>
+					<td>
+						<div class="btn-group btn-group-xs" role="group" aria-label="...">
+						{{if access(0,'[namespace]','lock')}}
+							{{if v.locked==1}}
+							<a class="btn btn-primary" href="javascript:EBCMS.ACT.lock('{:U('Cron/lock')}','{{v.id}}','0','[namespace]');">已锁</a>
+							{{else}}
+							<a class="btn btn-primary" href="javascript:EBCMS.ACT.lock('{:U('Cron/lock')}','{{v.id}}','1','[namespace]');">未锁</a>
+							{{/if}}
+						{{/if}}
+						{{if access(v.locked,'[namespace]','status')}}
+							{{if v.status==1}}
+							<a class="btn btn-primary" href="javascript:EBCMS.ACT.status('{:U('Cron/status')}','{{v.id}}','0','[namespace]');">已审</a>
+							{{else}}
+							<a class="btn btn-primary" href="javascript:EBCMS.ACT.status('{:U('Cron/status')}','{{v.id}}','1','[namespace]');">未审</a>
+							{{/if}}
+						{{/if}}
+						{{if access(v.locked,'[namespace]','save')}}
+						<a class="btn btn-primary" href="javascript:EBCMS.[namespace].save('{{v.id}}');">编辑</a>
+						<a class="btn btn-primary" href="javascript:EBCMS.[namespace].config('{{v.id}}');">配置</a>
+						{{/if}}
+						{{if access(v.locked,'[namespace]','delete')}}
+						<a class="btn btn-primary" href="javascript:EBCMS.ACT.del('{:U('Cron/delete')}','{{v.id}}','[namespace]');">删除</a>
+						{{/if}}
+						</div>
+					</td>
+				</tr>
+			{{/each}}
+		</tbody>
+	</table>
+</script>

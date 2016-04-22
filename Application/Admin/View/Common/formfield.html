@@ -1,0 +1,240 @@
+<php>
+	$_ns = time().'_'.$_field['id'];
+	$_field['_type'] = substr($_field['_type'],5);
+</php>
+<eq name='_field._type' value='hidden'>
+	<input type="hidden" name="{$_field._field}" value="{$_field._value}" />
+<else/>
+	<div class="form-group">
+		<label for="{$_ns}" class="col-sm-2 control-label">{$_field.title}</label>
+		<div class="col-sm-10">
+
+		<switch name="_field._type">
+
+			<case value="bool">
+				<label class="radio-inline" for="{$_ns}_1">
+					<input type="radio" id="{$_ns}_1" name="{$_field._field}" value="1" <eq name="_field._value" value='1'>checked</eq> <eq name="_field.config.disabled" value='1'>disabled</eq> <eq name='_field.config.readonly' value='1'>readonly</eq>> 是
+				</label>
+				<label class="radio-inline" for="{$_ns}_0">
+					<input type="radio" id="{$_ns}_0" name="{$_field._field}" value="0" <eq name="_field._value" value='0'>checked</eq> <eq name="_field.config.disabled" value='1'>disabled</eq> <eq name='_field.config.readonly' value='1'>readonly</eq>> 否
+				</label>
+			</case>
+
+			
+			<case value="select">
+				<php>$_temps = explode("\r\n",$_field['config']['values']);</php>
+				<select class="form-control" id="{$_ns}" name="{$_field._field}" <eq name='_field.config.readonly' value='1'>readonly</eq> <eq name='_field.config.disabled' value='1'>disabled</eq> <eq name='_field.config.required' value='1'>required</eq>>
+				<foreach name='_temps' item='_temp'>
+					<php>$_temp = explode("|",$_temp);</php>
+					<option value="{$_temp[1]}" <eq name="_field._value" value='$_temp[1]'>selected</eq>>{$_temp[0]}</option>
+				</foreach>
+				</select>
+			</case>
+
+			<case value="radio">
+				<php>$_temps = explode("\r\n",$_field['config']['values']);</php>
+				<foreach name='_temps' item='_temp'><php>$_temp = explode("|",$_temp);</php>
+					<label class="radio-inline" for="{$_ns}_{$key}">
+						<input type="radio" name="{$_field._field}" id="{$_ns}_{$key}" value="{$_temp[1]}" <eq name="_field._value" value='$_temp[1]'>checked</eq> <eq name="_field.config.disabled" value='1'>disabled</eq> <eq name='_field.config.readonly' value='1'>readonly</eq>> {$_temp[0]}
+					</label>
+				</foreach>
+			</case>
+
+			<case value="checkbox">
+				<php>$_temps = explode("\r\n",$_field['config']['values']);</php>
+				<foreach name='_temps' item='_temp'><php>$_temp = explode("|",$_temp);</php>
+					<label class="checkbox-inline" for="{$_ns}_{$key}">
+						<input type="checkbox" id="{$_ns}_{$key}" name="{$_field._field}[]" value="{$_temp[1]}" <in name="_temp['1']" value='$_field._value'>checked</in> <eq name="_field.config.disabled" value='1'>disabled</eq> <eq name='_field.config.readonly' value='1'>readonly</eq>> {$_temp[0]}
+					</label>
+				</foreach>
+			</case>
+
+			<case value="textbox">
+				<input type="text" class="form-control" id="{$_ns}" name="{$_field._field}" value="{$_field._value}" placeholder="{$_field.config.prompt|default=''}" <eq name='_field.config.readonly' value='1'>readonly</eq> <eq name='_field.config.disabled' value='1'>disabled</eq> <eq name='_field.config.required' value='1'>required</eq>>
+			</case>
+
+			<case value="multitextbox">
+				<textarea class="form-control" id="{$_ns}" name="{$_field._field}" rows="{$_field.config.height|default='5'}" placeholder="{$_field.config.prompt|default=''}" <eq name='_field.config.disabled' value='1'>disabled</eq> <eq name='_field.config.readonly' value='1'>readonly</eq> <eq name='_field.config.required' value='1'>required </eq>>{$_field._value}</textarea>
+			</case>
+
+			<case value="image">
+				<script>
+					$(function(){
+						EBCMS.FN.renderPic('#{$_ns}'<notempty name="_field.config.extensions">,'{$_field['config']['extensions']}'</notempty>);
+					});
+				</script>
+				<div class="row">
+					<div class="col-md-10">
+						<input id="{$_ns}" class="form-control" name="{$_field._field}" value="{$_field._value}" placeholder="{$_field.config.prompt|default=''}" <eq name='_field.config.disabled' value='1'>disabled</eq> <eq name='_field.config.readonly' value='1'>readonly</eq> <eq name='_field.config.required' value='1'>required </eq>/>
+					</div>
+					<div class="col-md-2">
+						<div id="{$_ns}Picker">上传</div>
+					</div>
+				</div>
+			</case>
+
+			<case value="images">
+				<script>
+					$(function(){
+						EBCMS.FN.renderPics('#{$_ns}'<notempty name="_field.config.extensions">,'{$_field['config']['extensions']}'</notempty>);
+					});
+				</script>
+				<div class="row">
+					<div class="col-md-10">
+						<textarea id="{$_ns}" class="form-control" rows="5" name="{$_field._field}" placeholder="{$_field.config.prompt|default=''}" <eq name='_field.config.disabled' value='1'>disabled</eq> <eq name='_field.config.readonly' value='1'>readonly</eq> <eq name='_field.config.required' value='1'>required </eq>>{$_field._value}</textarea>
+					</div>
+					<div class="col-md-2">
+						<div id="{$_ns}Picker">上传</div>
+					</div>
+				</div>
+			</case>
+
+			<case value="file">
+				<script>
+					$(function(){
+						EBCMS.FN.renderFile('#{$_ns}'<notempty name="_field.config.extensions">,'{$_field['config']['extensions']}'</notempty>);
+					});
+				</script>
+				<div class="row">
+					<div class="col-md-10">
+						<input id="{$_ns}" class="form-control" name="{$_field._field}" value="{$_field._value}" placeholder="{$_field.config.prompt|default=''}" <eq name='_field.config.disabled' value='1'>disabled</eq> <eq name='_field.config.readonly' value='1'>readonly</eq> <eq name='_field.config.required' value='1'>required </eq>/>
+					</div>
+					<div class="col-md-2">
+						<div id="{$_ns}Picker">上传</div>
+					</div>
+				</div>
+			</case>
+
+			<case value="files">
+				<script>
+					$(function(){
+						EBCMS.FN.renderFiles('#{$_ns}'<notempty name="_field.config.extensions">,'{$_field['config']['extensions']}'</notempty>);
+					});
+				</script>
+				<div class="row">
+					<div class="col-md-10">
+						<textarea id="{$_ns}" class="form-control" rows="5" name="{$_field._field}" placeholder="{$_field.config.prompt|default=''}" <eq name='_field.config.disabled' value='1'>disabled</eq> <eq name='_field.config.readonly' value='1'>readonly</eq> <eq name='_field.config.required' value='1'>required </eq>>{$_field._value}</textarea>
+					</div>
+					<div class="col-md-2">
+						<div id="{$_ns}Picker">上传</div>
+					</div>
+				</div>
+			</case>
+
+			<case value="ueditor">
+				<script>
+					$(function(){
+						EBCMS.FN.renderUE('{$_ns}',{
+							autoHeightEnabled:{$_field.config.autoheightenabled|default='false'},
+							maximumWords:{$_field.config.maximumwords|default='10000'},
+							wordCount:{$_field.config.wordcount|default='true'},
+							elementPathEnabled:{$_field.config.elementpathenabled|default='true'},
+							initialFrameHeight:{$_field.config.initialframeheight|default='420'},
+						});
+					});
+				</script>
+				<textarea name="{$_field._field}" id="{$_ns}">{$_field._value}</textarea>
+			</case>
+
+			<case value="combotree">
+				<script>
+					$(function(){
+						<php>
+							if ($_field['config']['queryparams']) {
+								$_where = '';
+								$_queryparams = explode("\r\n",$_field['config']['queryparams']);
+								foreach ($_queryparams as $key => $value) {
+									$_tmp = explode('|',$value);
+									if (stripos($_tmp[2],'(I)') === 0) {
+										$_tmp[2] = I(substr($_tmp[2],3));
+									}elseif(stripos($_tmp[2],'($)') === 0){
+										$_tmp[2] = $_fields[substr($_tmp[2],3)]['_value'];
+									};
+									$_where .= $_tmp[0].":['".$_tmp[1]."','".$_tmp[2]."'],";
+								}
+							};
+						</php>
+						EBCMS.CORE.api({
+							<eq name='_field.config.group' value='1'>
+							group:'group',
+							<else/>
+								<eq name='_field.config.tree' value='1'>
+								tree:'tree',
+								</eq>
+								<eq name='_field.config.rootitem' value='1'>
+								rootitem:true,
+								</eq>
+							</eq>
+							queryParams:{
+								sort:'sort',
+								order:'desc',
+								__model:'{$_field.config.model}',
+								<notempty name="_field.config.queryparams">
+								__where:{
+									{$_where}
+								},
+								</notempty>
+							},
+							loadAfter:function(data){
+								$select = $('#{$_ns}');
+								var str = EBCMS.FN.renderSelect(data['rows'],'{$_field._value}','{$_field.config.valuefield|default="id"}','{$_field.config.textfield|default="title"}');
+								$select.append(str);
+							}
+						});
+					});
+				</script>
+				<select class="form-control" id="{$_ns}" name="{$_field._field}" <eq name='_field.config.readonly' value='1'>readonly</eq> <eq name='_field.config.disabled' value='1'>disabled</eq> <eq name='_field.config.required' value='1'>required</eq>>
+				</select>
+			</case>
+
+			<case value="datadict">
+				<script>
+					$(function(){
+						EBCMS.CORE.datadict({
+							queryParams:{
+								sort:'sort',
+								order:'desc',
+								datadict:'{$_field.config.datadict}',
+							},
+							<eq name='_field.config.rootitem' value='1'>
+							rootitem:true,
+							</eq>
+							loadAfter:function(data){
+								$select = $('#{$_ns}');
+								var str = EBCMS.FN.renderSelect(data['rows'],'{$_field._value}','{$_field.config.valuefield|default="id"}','{$_field.config.textfield|default="title"}');
+								$select.append(str);
+							}
+						});
+					});
+				</script>
+				<select class="form-control" id="{$_ns}" name="{$_field._field}" <eq name='_field.config.readonly' value='1'>readonly</eq> <eq name='_field.config.disabled' value='1'>disabled</eq> <eq name='_field.config.required' value='1'>required</eq>>
+				</select>
+			</case>
+
+			<case value="numberbox">
+				<input type="number" id="{$_ns}" class="form-control" name="{$_field._field}" value="{$_field._value}" <eq name='_field.config.readonly' value='1'>readonly</eq> <eq name='_field.config.disabled' value='1'>disabled</eq> <eq name='_field.config.required' value='1'>required</eq>/>
+			</case>
+
+			<case value="timespinner">
+				<input type="time" id="{$_ns}" class="form-control" name="{$_field._field}" value="{$_field._value}" id="{$_ns}" <eq name='_field.config.readonly' value='1'>readonly</eq> <eq name='_field.config.disabled' value='1'>disabled</eq> <eq name='_field.config.required' value='1'>required</eq>/>
+			</case>
+
+			<case value="datebox">
+				<input type="date" id="{$_ns}" class="form-control" name="{$_field._field}" value="{$_field._value}" id="{$_ns}" <eq name='_field.config.readonly' value='1'>readonly</eq> <eq name='_field.config.disabled' value='1'>disabled</eq> <eq name='_field.config.required' value='1'>required</eq>/>
+			</case>
+
+			<case value="datetimebox">
+				<input type="datetime-local" id="{$_ns}" class="form-control" name="{$_field._field}" value="{$_field._value|datetimelocal}" id="{$_ns}" <eq name='_field.config.readonly' value='1'>readonly</eq> <eq name='_field.config.disabled' value='1'>disabled</eq> <eq name='_field.config.required' value='1'>required</eq>/>
+			</case>
+
+			<default />
+				<span style="color:red;">{$_field._type}表单类型不存在 请联系专业人员</span>
+		</switch>
+
+		<notempty name='_field.instruction'>
+			<p class="help-block">{$_field.instruction}</p>
+		</notempty>
+		
+		</div>
+	</div>
+</eq>

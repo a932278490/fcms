@@ -1,0 +1,113 @@
+<script>
+	Namespace.register("EBCMS.[namespace]");
+	$(function(){
+		EBCMS.[namespace].queryParams = {
+			page:1,
+			rows:20,
+			__model:'attachment',
+		};
+		EBCMS.[namespace].refresh = function refresh(p){
+			if (p) {
+				$.each(p, function(index, val) {
+					if (typeof val == 'object') {
+						EBCMS.[namespace].queryParams[index] = $.extend(EBCMS.[namespace].queryParams[index], p[index]);
+						delete p[index];
+					};
+				});
+				$.extend(EBCMS.[namespace].queryParams, p);
+			};
+			EBCMS.CORE.api({
+				queryParams:EBCMS.[namespace].queryParams,
+				tpl:'[namespace]-table',
+				target:'#[namespace]_table',
+				compileAfter:function(p){
+					EBCMS.FN.renderPage({
+						namespace:'[namespace]',
+						total:p.data.total,
+						filter:{
+							lock:true,
+							status:true,
+							sort:true,
+							order:true,
+							rows:true,
+						},
+					});
+				},
+			});
+		};
+		// 获取修改表单
+		EBCMS.[namespace].save = function save(id){
+			EBCMS.CORE.get({
+				url:'{:U('Attachment/save')}',
+				queryParams:{
+					id:id,
+				},
+				target:'#lgModal .modal-content',
+			});
+		};
+	});
+</script>
+
+<script id="[namespace]-box" type="text/html">
+	<div class="header">
+		<div class="header-title">附件管理</div>
+	</div>
+	<div class="body">
+		<div class="box" id="[namespace]_table"></div>
+	</div>
+	<div class="footer">
+		<div class="footer-page" id="[namespace]_page"></div>
+		<div class="footer-action">
+			<div class="dropup">
+				<button class="btn btn-danger dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					操作
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+					<li><a href="#">审核</a></li>
+					<li><a href="#">待审</a></li>
+					<li role="separator" class="divider"></li>
+					<li><a href="#">锁定</a></li>
+					<li><a href="#">解锁</a></li>
+					<li role="separator" class="divider"></li>
+					<li><a href="#">删除</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</script>
+
+<script id="[namespace]-table" type="text/html">
+	<ul class="list-group tree tree_first" style="border-top: 1px solid #ddd;border-right: 1px solid #ddd;border-bottom: 1px solid #ddd;">
+		{{include '[namespace]-table-item'}}
+	</ul>
+</script>
+
+<script id="[namespace]-table-item" type="text/html">
+	{{each rows as v n}}
+		<li class="list-group-item">
+			<div class="media">
+				<div class="media-left">
+					<a href="{{v.savepath+v.savename | realpath}}" target="_blank" style="width: 120px;display:block;">
+						<img class="media-object" alt="{{v.name}}" src="{{v.savepath+v.savename | realpath}}" style="max-width: 120px; max-height: 120px;">
+					</a>
+				</div>
+				<div class="media-body">
+					<h4 class="media-heading"><b><span class="text-success">{{if v.title}}{{v.title}}{{else}}{{v.name}}{{/if}}</span></b></h4>
+					<div>{{v.instruction}}</div>
+				</div>
+				<div class="media-right">
+					<div class="btn-group-vertical btn-group-sm" role="group" aria-label="...">
+					{{if v.status==1}}
+					<a class="btn btn-primary" href="javascript:EBCMS.ACT.status('{:U('Attachment/status')}','{{v.id}}','0','[namespace]');" role="button">已审</a>
+					{{else}}
+					<a class="btn btn-primary" href="javascript:EBCMS.ACT.status('{:U('Attachment/status')}','{{v.id}}','1','[namespace]');" role="button">未审</a>
+					{{/if}}
+					<a class="btn btn-primary" href="javascript:EBCMS.[namespace].save('{{v.id}}');" role="button">修改</a>
+					<a class="btn btn-primary" href="javascript:EBCMS.ACT.del('{:U('Attachment/delete')}','{{v.id}}','[namespace]');" role="button">删除</a>
+					</div>
+				</div>
+			</div>
+		</li>
+	{{/each}}
+</script>
