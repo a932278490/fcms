@@ -1,0 +1,106 @@
+body{
+	margin: 10px 0px;
+}
+body img{
+	max-width: 100%;
+}
+a img{
+	max-width: none;
+}
+*{
+	outline: none;
+}
+a{
+	color: #555;
+}
+#carousel-example-generic .item img{
+	height: 300px;
+	width: 100%;
+}
+
+.media-border .media{
+	border: 1px solid #ddd;
+	margin-top: -1px;
+	padding: 15px 10px 5px 10px;
+}
+
+img.img-avt{
+	width: 65px;
+	height: 65px;
+	margin: 10px auto;
+}
+
+.forum-list-title{
+	font-size: 17px;
+	font-weight: bold;
+	margin: 5px;
+}
+
+.desc{
+	padding: 10px;
+	border: 1px #D6D6D6 dashed;
+	background: #F5F5F5;
+	margin: 10px 0px;
+}
+
+/*用户中心 申请会员的角色列表*/
+.role-list{
+	border-bottom: 1px solid #f5f5f5;
+	padding: 10px;
+}
+
+.role-list .icon-avatar{
+	font-size: 65px;
+	line-height: 65px;
+}
+
+.role-list .media-body{
+	padding: 0px 10px;
+}
+
+/*验证码*/
+.img-verify{
+	width:150px;
+	padding:0px;
+}
+.img-verify img{
+	width: 150px;
+	height: 44px;
+	cursor: pointer;
+	border-radius: 0 3px 3px 0;
+}
+
+/*webuploader*/
+.webuploader-pick {
+	padding: 6px 0;
+	width: 100%;
+}
+
+/*表单切换*/
+.tabs{
+	overflow: auto;
+	padding: 0px 0px 10px 0px;
+	border-bottom: 1px solid #D6D6D6;
+	margin-bottom: 15px;
+}
+.tabs .tab-head{
+	width: 80px;
+	float: left;
+	padding: 3px 0;
+	border: 1px solid #ddd;
+	text-align: center;
+	margin-right: 5px;
+	cursor: pointer;
+}
+.tabs .current{
+	color: #FFF;
+	font-weight: bold; 
+	background-color: #237077;
+	border-color: #2D6F75;
+}
+.tabboxs{
+
+}
+.tabboxs .tab-body{
+	display: none;
+}

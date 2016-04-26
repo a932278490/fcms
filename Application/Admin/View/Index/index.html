@@ -1,0 +1,116 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>后台管理界面</title>
+    <script src="__JS__/jquery.min.js"></script>
+    <link href="__THIRD__/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="__THIRD__/iconfont/iconfont.css" rel="stylesheet">
+    <link href="__CSS__/admin.css" rel="stylesheet">
+    <script src="__THIRD__/bootstrap/js/bootstrap.min.js"></script>
+    <script src="__THIRD__/multi_menu/accordion.js"></script>
+    <script src="__THIRD__/artTemplate/template.js"></script>
+    <script>
+    var html;
+  $(document).ready(
+    function(){
+      $.ajax({
+        url:'{:U('index')}',
+        type: 'POST',
+        dataType: 'json',
+        data:"__api=mymenu",
+        success:function(data){
+          var html = template('left_nav',data.info);
+          document.getElementById('left-nav').innerHTML = html;
+          $(".leftnav").accordion({
+                accordion: false,
+                speed: 100,
+                closedIcon: 'iconfont icon-shouqi',
+                openedIcon: 'iconfont icon-zhankai',
+              renderAfter:function(){
+              $(".leftnav > li > a").trigger('click');
+            }});
+        }
+      })
+    }
+  );
+</script>
+
+</head>
+
+<body>
+    <div class="header" style="height:50px;padding:0px;">
+        <nav class="navbar navbar-static-top navbar-default navbar-inverse" style="margin-bottom:0;">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="" target="_blank"><b>易贝<sup>®</sup>内容管理系统</b></a>
+                </div>
+                <div class="collapse navbar-collapse" id="navbar-collapse">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a href="javascript:EBCMS.{$namespace}.config();">系统配置</a></li>
+                        <li><a href="javascript:EBCMS.{$namespace}.runtime(1);">清理系统缓存</a></li>
+                        <li><a href="{:U('Home/Index/index')}" target="_blank">前台</a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><b>{$nickname}</b> <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="javascript:EBCMS.{$namespace}.password();">修改密码</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="{:U('Auth/logout')}">退出</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+  <div class="body" style="top:50px;padding:0px;bottom:25px;">
+    <div class="layout">
+      <div class="layout-left" style="margin-right:-180px;width:180px;background:#222;">
+      <div id="left-nav" class="box"></div>
+        <script id="left_nav" type="text/html">
+          <ul class="leftnav">
+            {{include 'nav_item'}}
+          </ul>
+        </script>
+        <script id="nav_item" type="text/html">
+          {{each rows as v n}}
+            <li>
+            {{if v.rows}}
+              <a href="#"><i class="{{v.iconcls}}"></i> {{v.title}}</a>
+              <ul>
+              {{include 'nav_item' v}}
+              </ul>
+            {{else}}
+              <a href="{{v.url}}"><i class="{{v.iconcls}}"></i> {{v.title}}</a>
+            {{/if}}
+            </li>
+          {{/each}}
+        </script>
+      </div>
+     
+      <div class="layout-rightbox">
+        <div class="layout-right" style="height:100%;overflow:auto;margin-left:180px;">
+          <div id="main" class="box">
+            <include file="main" />
+          </div>
+          <div id="main_edit" class="box" style="display: none;"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+<div class="footer" style="height:25px;padding:0px;">
+    <div style="height:23px;text-align:right;line-height:23px;margin:0px;">LVZHENG&nbsp;&nbsp;</div>
+  </div>
+</body>
+</html>

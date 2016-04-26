@@ -30,7 +30,7 @@ class AuthController extends Controller {
 				);
 			
 			$res = D('User')->where($where) -> relation('group') -> find();
-			file_put_contents('nihao.txt', $res.'123');
+			file_put_contents('nihao.txt', print_r($res,true));
 			if($res = D('User')->where($where) -> relation('group') -> find()){
 				// 判断账户状态
 

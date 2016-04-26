@@ -15,6 +15,7 @@
  * @return  {String, Function}  渲染好的HTML字符串或者渲染方法
  */
 var template = function (filename, content) {
+  //  alert(JSON.stringify(content) );
     return typeof content === 'string'
     ?   compile(content, {
             filename: filename
@@ -59,6 +60,7 @@ var cacheStore = template.cache = {};
  * @return  {String}    渲染好的字符串
  */
 template.render = function (source, options) {
+
     return compile(source, options);
 };
 

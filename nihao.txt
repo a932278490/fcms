@@ -1,1 +1,24 @@
-123
+Array
+(
+    [id] => 1
+    [email] => 932278490@qq.com
+    [nickname] => 15408378
+    [avatar] => 
+    [motto] => 
+    [password] => fa3833b6d28bca79ee5d6dcbbf5f8b36
+    [login_times] => 54
+    [login_ip] => 0
+    [jifen] => 6
+    [jinbi] => 3
+    [login_time] => 1461638181
+    [safe_code] => 
+    [update_time] => 1457745916
+    [create_time] => 1457695413
+    [sort] => 99
+    [status] => 1
+    [locked] => 1
+    [group] => Array
+        (
+        )
+
+)
